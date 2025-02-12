@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ict_final/features/common/auth_cubit_states.dart';
 import 'package:ict_final/features/counter/cubit/counter_cubit.dart';
 import 'package:ict_final/features/login/login_screen.dart';
 import 'package:ict_final/features/logout/logout_cubit.dart';
-import 'package:ict_final/register/register_cubit/auth_cubit_states.dart';
 
 class CounterScreen extends StatelessWidget {
   const CounterScreen({super.key});

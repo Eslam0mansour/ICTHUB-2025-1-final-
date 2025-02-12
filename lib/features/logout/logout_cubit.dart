@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ict_final/core/networking/dio_base_client.dart';
+import 'package:ict_final/features/common/auth_cubit_states.dart';
 import 'package:ict_final/main.dart';
-import 'package:ict_final/register/register_cubit/auth_cubit_states.dart';
 
 class LogoutCubit extends Cubit<AuthStates> {
   LogoutCubit() : super(AuthIntialState());

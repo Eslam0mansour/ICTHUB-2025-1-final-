@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ict_final/core/functions/show_msg.dart';
+import 'package:ict_final/features/common/auth_cubit_states.dart';
+import 'package:ict_final/features/common/widgets/custom_button.dart';
+import 'package:ict_final/features/common/widgets/custom_text_button.dart';
+import 'package:ict_final/features/common/widgets/custom_text_form_field.dart';
 import 'package:ict_final/features/home_nav/screens/home_nav_screen.dart';
 import 'package:ict_final/features/login/login_cubit.dart';
-import 'package:ict_final/register/register_cubit/auth_cubit_states.dart';
-import 'package:ict_final/register/register_screen.dart';
-import 'package:ict_final/register/widgets/custom_button.dart';
-import 'package:ict_final/register/widgets/custom_text_button.dart';
-import 'package:ict_final/register/widgets/custom_text_form_field.dart';
+import 'package:ict_final/features/register/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
