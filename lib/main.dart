@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ict_final/core/utils/bloc_observer.dart';
+import 'package:ict_final/features/home_nav/screens/home_nav_screen.dart';
 import 'package:ict_final/features/login/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,7 +31,12 @@ class _FinalProjectState extends State<FinalProject> {
     final preferences = await MySharedPreferences.preferences;
     final token = preferences.getString('token');
 
-    final isHaveToken = (token != null || token != '');
+    // token must be not null and not empty
+    final isHaveToken = token != null && token != '';
+
+    ///this bad logic because i say token must be not null "" OR "" not empty so it will always return true
+    /// final isHaveToken = token != null || token != '';
+
     return isHaveToken;
   }
 
@@ -51,7 +57,7 @@ class _FinalProjectState extends State<FinalProject> {
       home: haveToken == null
           ? Scaffold()
           : haveToken!
-              ? LoginScreen()
+              ? BottomNavLayout()
               : LoginScreen(),
     );
   }
