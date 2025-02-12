@@ -5,6 +5,7 @@ import 'package:ict_final/core/di/di.dart';
 import 'package:ict_final/core/utils/bloc_observer.dart';
 import 'package:ict_final/core/utils/shared_pref.dart';
 import 'package:ict_final/features/app/app.dart';
+import 'package:ict_final/features/app/error_app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,13 +26,6 @@ void main() async {
 
     runApp(FinalProject());
   } catch (e) {
-    runApp(MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(
-          child: Text('Error: $e'),
-        ),
-      ),
-    ));
+    runApp(ErrorMaterialApp(e: e));
   }
 }
