@@ -1,40 +1,44 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ict_final/core/networking/dio_base_client.dart';
-import 'package:ict_final/features/common/auth_cubit_states.dart';
-import 'package:ict_final/main.dart';
+import 'package:ict_final/core/utils/basic_state.dart';
+import 'package:ict_final/core/utils/shared_pref.dart';
+import 'package:ict_final/features/common/auth_state.dart';
 
-class RegisterCubit extends Cubit<AuthStates> {
-  RegisterCubit() : super(AuthIntialState());
-  bool isHidden = true;
+class RegisterCubit extends Cubit<AuthState> {
+  RegisterCubit({
+    required this.baseClient,
+    required this.prefs,
+  }) : super(AuthState());
 
-  final baseClient = DioBaseClient();
+  final DioBaseClient baseClient;
+  final MySharedPrefInterface prefs;
 
-  //============================================== Create Register Method ===============================================================================
-  // Register User Method
-  Future<void> register({required Map<String, dynamic> data}) async {
-    emit(RegisterLoadingState());
+  Future<void> register({
+    required Map<String, dynamic> data,
+  }) async {
+    emit(state.copyWith(status: BasicStates.loading));
     try {
-      // post request with dio
       Response response = await baseClient.dio.post(
         "signup",
         data: data,
       );
-      final preferences = await MySharedPreferences.preferences;
-
-      preferences.setString(
-        'token',
-        response.data['access_token'],
+      prefs.putString(
+        key: MySharedKeys.accessToken,
+        value: response.data['access_token'],
       );
-      emit(RegisterSuccessState());
+      emit(state.copyWith(status: BasicStates.success));
     } catch (e) {
-      emit(RegisterErrorState(errMsg: e.toString()));
+      emit(
+        state.copyWith(
+          status: BasicStates.error,
+          errMsg: e.toString(),
+        ),
+      );
     }
   }
 
-  // ============================================== change password visibility method ================================================================
   void changePasswordVisibility() {
-    isHidden = !isHidden;
-    emit(PasswordVisibilyChanged());
+    emit(state.copyWith(isHidden: !state.isHidden));
   }
 }

@@ -1,50 +1,50 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ict_final/core/networking/dio_base_client.dart';
-import 'package:ict_final/features/common/auth_cubit_states.dart';
-import 'package:ict_final/main.dart';
+import 'package:ict_final/core/utils/basic_state.dart';
+import 'package:ict_final/core/utils/shared_pref.dart';
+import 'package:ict_final/features/common/auth_state.dart';
 
-class LoginCubit extends Cubit<AuthStates> {
-  LoginCubit() : super(AuthIntialState());
-  final baseClient = DioBaseClient();
+class LoginCubit extends Cubit<AuthState> {
+  LoginCubit({
+    required this.baseClient,
+    required this.prefs,
+  }) : super(AuthState());
+  final DioBaseClient baseClient;
+  final MySharedPrefInterface prefs;
 
-  // Login User Method
   Future<void> login({required Map<String, dynamic> data}) async {
-    emit(LoginLoadingState());
+    emit(state.copyWith(status: BasicStates.loading));
     try {
-      // post request with dio
       Response response = await baseClient.dio.post(
         "token?grant_type=password",
         data: data,
       );
 
-      final preferences = await MySharedPreferences.preferences;
-
-      preferences.setString(
-        'token',
-        response.data['access_token'],
+      prefs.putString(
+        key: MySharedKeys.accessToken,
+        value: response.data['access_token'],
       );
-      emit(LoginSuccessState());
+
+      emit(state.copyWith(status: BasicStates.success));
     } on DioException catch (e) {
       emit(
-        LoginErrorState(
+        state.copyWith(
+          status: BasicStates.error,
           errMsg: e.response?.data['msg'] ?? e.message ?? e.error.toString(),
         ),
       );
     } catch (e) {
       emit(
-        LoginErrorState(
+        state.copyWith(
+          status: BasicStates.error,
           errMsg: e.toString(),
         ),
       );
     }
   }
 
-  bool isHidden = true;
-
-  // ============================================== change password visibility method ================================================================
   void changePasswordVisibility() {
-    isHidden = !isHidden;
-    emit(PasswordVisibilyChanged());
+    emit(state.copyWith(isHidden: !state.isHidden));
   }
 }

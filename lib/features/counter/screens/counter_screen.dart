@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ict_final/features/common/auth_cubit_states.dart';
+import 'package:ict_final/core/di/di.dart';
+import 'package:ict_final/core/networking/dio_base_client.dart';
+import 'package:ict_final/core/utils/basic_state.dart';
+import 'package:ict_final/core/utils/shared_pref.dart';
+import 'package:ict_final/features/common/auth_state.dart';
 import 'package:ict_final/features/counter/cubit/counter_cubit.dart';
 import 'package:ict_final/features/login/login_screen.dart';
 import 'package:ict_final/features/logout/logout_cubit.dart';
@@ -44,20 +48,25 @@ class CounterScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   BlocProvider(
-                    create: (context) => LogoutCubit(),
-                    child: BlocConsumer<LogoutCubit, AuthStates>(
+                    create: (context) => LogoutCubit(
+                      baseClient: locator<DioBaseClient>(),
+                      prefs: locator<MySharedPrefInterface>(),
+                    ),
+                    child: BlocConsumer<LogoutCubit, AuthState>(
                       listener: (context, state) {
-                        if (state is LogoutSuccessState) {
+                        if (state.status.isSuccess) {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => LoginScreen(),
                             ),
                           );
-                        } else if (state is LogoutErrorState) {
+                        } else if (state.status.isError) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(state.errMsg),
+                              content: Text(
+                                state.errMsg ?? "Error",
+                              ),
                             ),
                           );
                         }
@@ -67,7 +76,7 @@ class CounterScreen extends StatelessWidget {
                           onPressed: () {
                             context.read<LogoutCubit>().logout();
                           },
-                          child: state is LogoutLoadingState
+                          child: state.status.isLoading
                               ? CircularProgressIndicator()
                               : Text("logout"),
                         );

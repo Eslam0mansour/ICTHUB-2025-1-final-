@@ -1,64 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:ict_final/core/di/di.dart';
 import 'package:ict_final/core/utils/bloc_observer.dart';
-import 'package:ict_final/features/home_nav/screens/home_nav_screen.dart';
-import 'package:ict_final/features/login/login_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-class MySharedPreferences {
-  static Future<SharedPreferences> get preferences async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs;
-  }
-}
+import 'package:ict_final/core/utils/shared_pref.dart';
+import 'package:ict_final/features/app/app.dart';
 
 void main() async {
-  Bloc.observer = MyBlocObserver();
-  runApp(FinalProject());
-}
+  WidgetsFlutterBinding.ensureInitialized();
 
-class FinalProject extends StatefulWidget {
-  const FinalProject({super.key});
+  try {
+    /// Load .env file first to use it in the DioBaseClient
+    await dotenv.load(fileName: '.env');
 
-  @override
-  State<FinalProject> createState() => _FinalProjectState();
-}
+    /// Setup locator for singleton implementation
+    /// Dio - DioBaseClient - MySharedPref
+    await setupLocator();
 
-class _FinalProjectState extends State<FinalProject> {
-  bool? haveToken;
+    /// Initialize shared preference
+    await locator<MySharedPrefInterface>().initSP();
 
-  Future<bool> isHaveToken() async {
-    final preferences = await MySharedPreferences.preferences;
-    final token = preferences.getString('token');
+    /// Bloc observer for debugging
+    Bloc.observer = MyBlocObserver();
 
-    // token must be not null and not empty
-    final isHaveToken = token != null && token != '';
-
-    ///this bad logic because i say token must be not null "" OR "" not empty so it will always return true
-    /// final isHaveToken = token != null || token != '';
-
-    return isHaveToken;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    isHaveToken().then((value) {
-      setState(() {
-        haveToken = value;
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+    runApp(FinalProject());
+  } catch (e) {
+    runApp(MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: haveToken == null
-          ? Scaffold()
-          : haveToken!
-              ? BottomNavLayout()
-              : LoginScreen(),
-    );
+      home: Scaffold(
+        body: Center(
+          child: Text('Error: $e'),
+        ),
+      ),
+    ));
   }
 }
