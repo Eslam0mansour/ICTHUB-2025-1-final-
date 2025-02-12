@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ict_final/counter_cubit/counter_cubit.dart';
-import 'package:ict_final/counter_cubit/counter_states.dart';
+import 'package:ict_final/features/counter/cubit/counter_cubit.dart';
 
 class CounterScreen extends StatelessWidget {
   const CounterScreen({super.key});
@@ -10,11 +9,8 @@ class CounterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => CounterCubit(),
-      child: BlocBuilder<CounterCubit, CounterState>(
+      child: BlocBuilder<CounterCubit, int>(
         builder: (context, state) {
-          // Object from our cubit
-          CounterCubit counterCubit = context.read<CounterCubit>();
-
           return Scaffold(
             appBar: AppBar(
               title: Text("Counter Screen"),
@@ -26,16 +22,15 @@ class CounterScreen extends StatelessWidget {
                   IconButton(
                     iconSize: 45,
                     onPressed: () {
-                      counterCubit.decrementCounter();
+                      context.read<CounterCubit>().decrementCounter();
                     },
                     icon: Icon(Icons.remove),
                   ),
-                  Text("${counterCubit.counter}",
-                      style: TextStyle(fontSize: 45)),
+                  Text("$state", style: TextStyle(fontSize: 45)),
                   IconButton(
                     iconSize: 45,
                     onPressed: () {
-                      counterCubit.incrementCounter();
+                      context.read<CounterCubit>().incrementCounter();
                     },
                     icon: Icon(Icons.add),
                   ),

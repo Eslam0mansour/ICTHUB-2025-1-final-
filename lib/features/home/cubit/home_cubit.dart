@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ict_final/data/models/product_data_model.dart';
-import 'package:ict_final/home_cubit/home_states.dart';
 import 'package:http/http.dart' as http;
+import 'package:ict_final/features/home/cubit/home_states.dart';
+import 'package:ict_final/features/home/data/models/product_data_model.dart';
 
 class HomeCubit extends Cubit<HomeStates> {
   HomeCubit() : super(HomeIntialState());

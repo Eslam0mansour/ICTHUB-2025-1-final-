@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ict_final/functions/show_msg.dart';
-import 'package:ict_final/home_cubit/home_cubit.dart';
-import 'package:ict_final/home_cubit/home_states.dart';
+import 'package:ict_final/core/functions/show_msg.dart';
+import 'package:ict_final/features/home/cubit/home_cubit.dart';
+import 'package:ict_final/features/home/cubit/home_states.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -16,7 +16,6 @@ class HomeScreen extends StatelessWidget {
           if (state is GetProductsErrorState) {
             showMsg(context, "Error.....!");
           }
-
         },
         builder: (context, state) {
           HomeCubit homeCubit = context.read<HomeCubit>();
