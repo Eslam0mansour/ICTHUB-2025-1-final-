@@ -6,13 +6,13 @@ import 'package:ict_final/features/home/cubit/home_states.dart';
 import 'package:ict_final/features/home/data/models/product_data_model.dart';
 
 class HomeCubit extends Cubit<HomeStates> {
-  HomeCubit() : super(HomeIntialState());
-
-  List<ProductDataModel> products = [];
+  HomeCubit() : super(HomeLoadingState());
 
   Future<void> getProducts() async {
-    emit(GetProductsLoadingState());
+    emit(HomeLoadingState());
     try {
+      List<ProductDataModel> products = [];
+
       final uri = Uri.parse('https://fakestoreapi.com/products');
       final response = await http.get(uri);
       if (response.statusCode == 200) {
@@ -21,14 +21,12 @@ class HomeCubit extends Cubit<HomeStates> {
           ProductDataModel product = ProductDataModel.fromJson(map);
           products.add(product);
         }
-        emit(GetProductsSuccessState());
+        emit(HomeSuccessState(products));
       } else {
-        emit(GetProductsErrorState());
-        print('Failed to fetch products');
+        throw Exception('Failed to load products');
       }
     } catch (error) {
-      emit(GetProductsErrorState());
-      print('Error: $error');
+      emit(HomeErrorState(error.toString()));
     }
   }
 }

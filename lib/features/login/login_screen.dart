@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ict_final/core/di/di.dart';
 import 'package:ict_final/core/functions/show_msg.dart';
-import 'package:ict_final/features/common/auth_cubit_states.dart';
+import 'package:ict_final/core/networking/dio_base_client.dart';
+import 'package:ict_final/core/utils/basic_state.dart';
+import 'package:ict_final/features/common/auth_state.dart';
 import 'package:ict_final/features/common/widgets/custom_button.dart';
 import 'package:ict_final/features/common/widgets/custom_text_button.dart';
 import 'package:ict_final/features/common/widgets/custom_text_form_field.dart';
 import 'package:ict_final/features/home_nav/screens/home_nav_screen.dart';
 import 'package:ict_final/features/login/login_cubit.dart';
 import 'package:ict_final/features/register/register_screen.dart';
+
+import '../../core/utils/shared_pref.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,7 +29,10 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LoginCubit(),
+      create: (context) => LoginCubit(
+        baseClient: locator<DioBaseClient>(),
+        prefs: locator<MySharedPrefInterface>(),
+      ),
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
@@ -76,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           height: 20,
                         ),
-                        BlocBuilder<LoginCubit, AuthStates>(
+                        BlocBuilder<LoginCubit, AuthState>(
                           builder: (context, state) {
                             LoginCubit authCubit = context.read<LoginCubit>();
                             return CustomTextForm(
@@ -84,12 +92,12 @@ class _LoginScreenState extends State<LoginScreen> {
                               labelText: "password",
                               prefIcon: Icons.lock,
                               keyboardType: TextInputType.visiblePassword,
-                              isHidden: authCubit.isHidden,
+                              isHidden: state.isHidden,
                               suffixIcon: IconButton(
                                   onPressed: () {
                                     authCubit.changePasswordVisibility();
                                   },
-                                  icon: authCubit.isHidden
+                                  icon: state.isHidden
                                       ? Icon(Icons.visibility_off)
                                       : Icon(Icons.remove_red_eye)),
                             );
@@ -117,9 +125,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           height: 20,
                         ),
-                        BlocConsumer<LoginCubit, AuthStates>(
+                        BlocConsumer<LoginCubit, AuthState>(
                           listener: (context, state) {
-                            if (state is LoginSuccessState) {
+                            if (state.status.isSuccess) {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
@@ -127,8 +135,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               );
                             }
-                            if (state is LoginErrorState) {
-                              showMsg(context, state.errMsg);
+                            if (state.status.isError) {
+                              context.showErrorMsg(
+                                state.errMsg ?? "no message found in error",
+                              );
                             }
                           },
                           builder: (context, state) {
@@ -136,14 +146,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             return CustomButton(
                               onPressed: () {
                                 if (formKey.currentState!.validate()) {
-                                  authCubit.login(data: {
-                                    "email": emailController.text,
-                                    "password": passwordController.text,
-                                  });
+                                  authCubit.login(
+                                    data: {
+                                      "email": emailController.text,
+                                      "password": passwordController.text,
+                                    },
+                                  );
                                 }
                               },
                               text: "Login",
-                              isLoading: state is LoginLoadingState,
+                              isLoading: state.status.isSuccess,
                             );
                           },
                         ),
@@ -162,22 +174,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           height: 20,
                         ),
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        //   children: [
-                        //     CustomElevatedButton(
-                        //       imagePath: "assets/google.png",
-                        //       text: "Google",
-                        //       onPressed: () {},
-                        //     ),
-                        //     CustomElevatedButton(
-                        //       imagePath: "assets/facebook.png",
-                        //       text: "Facebook",
-                        //       onPressed: () {},
-                        //     ),
-                        //   ],
-                        // ),
-
                         SizedBox(
                           height: 30,
                         ),

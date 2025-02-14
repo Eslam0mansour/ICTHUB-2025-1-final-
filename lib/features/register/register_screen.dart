@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ict_final/core/di/di.dart';
 import 'package:ict_final/core/functions/show_msg.dart';
-import 'package:ict_final/features/common/auth_cubit_states.dart';
+import 'package:ict_final/core/networking/dio_base_client.dart';
+import 'package:ict_final/core/utils/basic_state.dart';
+import 'package:ict_final/core/utils/shared_pref.dart';
+import 'package:ict_final/features/common/auth_state.dart';
 import 'package:ict_final/features/common/widgets/custom_button.dart';
 import 'package:ict_final/features/common/widgets/custom_text_button.dart';
 import 'package:ict_final/features/common/widgets/custom_text_form_field.dart';
@@ -24,12 +28,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RegisterCubit(),
+      create: (context) => RegisterCubit(
+        baseClient: locator<DioBaseClient>(),
+        prefs: locator<MySharedPrefInterface>(),
+      ),
       child: GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: BlocConsumer<RegisterCubit, AuthStates>(
+        child: BlocConsumer<RegisterCubit, AuthState>(
           listener: (context, state) {
-            if (state is RegisterSuccessState) {
+            if (state.status.isSuccess) {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -37,20 +44,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               );
             }
-            if (state is RegisterErrorState) {
-              showMsg(context, state.errMsg);
+            if (state.status.isError) {
+              context.showErrorMsg(
+                state.errMsg ?? "Something went wrong",
+              );
             }
           },
           builder: (context, state) {
-            return BlocBuilder<RegisterCubit, AuthStates>(
+            return BlocBuilder<RegisterCubit, AuthState>(
               builder: (context, state) {
                 RegisterCubit authCubit = context.read<RegisterCubit>();
-
                 return Scaffold(
                   backgroundColor: Colors.white,
                   body: Form(
                     key: formKey,
-                    child: state is RegisterLoadingState
+                    child: state.status.isLoading
                         ? Center(child: CircularProgressIndicator())
                         : SingleChildScrollView(
                             child: Column(
@@ -134,13 +142,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         prefIcon: Icons.lock,
                                         keyboardType:
                                             TextInputType.visiblePassword,
-                                        isHidden: authCubit.isHidden,
+                                        isHidden: state.isHidden,
                                         suffixIcon: IconButton(
                                             onPressed: () {
                                               authCubit
                                                   .changePasswordVisibility();
                                             },
-                                            icon: authCubit.isHidden
+                                            icon: state.isHidden
                                                 ? Icon(Icons.visibility_off)
                                                 : Icon(Icons.remove_red_eye)),
                                       ),
